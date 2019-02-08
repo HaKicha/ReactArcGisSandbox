@@ -15,7 +15,17 @@ module.exports = {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: ["babel-loader"]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: "file-loader",
+                        options: {}
+                    }
+                ]
             }
+
         ]
     },
     plugins: [
@@ -34,4 +44,5 @@ module.exports = {
             ignored: /\/node_modules\/.*/
         },
     }
+
 };

@@ -4,15 +4,15 @@ import React from "react";
 import styled from 'styled-components'
 import {observable} from 'mobx'
 import {observer} from "mobx-react";
-import parseGeoJSON from '../modules/GeoJsonParser';
+import geoJsonToEsriJson from '../modules/GeoJsonParser';
 
 const options = {
     url: 'https://js.arcgis.com/4.6/'
 };
 
 
-
- @observer class Map extends Component {
+@observer
+class Map extends Component {
 
     constructor(props) {
         super(props);
@@ -20,31 +20,37 @@ const options = {
         this.state = {
             status: 'loading',
             visiblePoints: false
-        },
-        this.showGraphics = () => {}
+        }
+            this.showGraphics = () => {
+            }
+
     }
 
-     @observable
-     mapInfo = {
-         currentLat: 0,
-         currentLon: 0,
-         zoom: 15
-     };
+    @observable
+    mapInfo = {
+        currentLat: 0,
+        currentLon: 0,
+        zoom: 15
+    };
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({visiblePoints: nextProps.isGraphicsVisible});
+    }
 
     componentDidMount() {
         loadModules(['esri/Map',
             'esri/views/MapView',
             "esri/widgets/BasemapToggle"
-            ,"esri/Graphic",
+            , "esri/Graphic",
             "esri/core/Collection",
             "esri/geometry/Point"], options)
-            .then(([Map, MapView,BasemapToggle,Graphic,Collection,Point]) => {
-                const map = new Map({ basemap: "topo" });
+            .then(([Map, MapView, BasemapToggle, Graphic, Collection, Point]) => {
+                const map = new Map({basemap: "topo"});
                 const view = new MapView({
                     container: "viewDiv",
                     map,
                     zoom: this.mapInfo.zoom,
-                    center: [30.545,50.43]
+                    center: [30.545, 50.43]
                 });
                 var toggle = new BasemapToggle({
                     view: view,
@@ -59,7 +65,7 @@ const options = {
                     });
                 });
 
-            //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
                 let GeoJsonExample = '{"type": "Point", "coordinates": [30, 50]}';
                 let GeoJsonExamplePolyline = '{\n' +
@@ -69,17 +75,14 @@ const options = {
                     '    ]\n' +
                     '}';
 
-                let point = parseGeoJSON(GeoJsonExample);
-
-
-
+                let point = geoJsonToEsriJson(GeoJsonExample)[0];
 
 
                 var markerSymbol = {
                     type: "simple-marker",
-                    color: [250,120,50],
+                    color: [250, 120, 50],
                     outline: {
-                        color: [255,255,255],
+                        color: [255, 255, 255],
                         width: 1
                     }
                 };
@@ -106,18 +109,18 @@ const options = {
                     }
                 });
 
-            //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
                 var graphicBuffer = new Collection();
                 graphicBuffer.add(pointGraphic);
-                point=parseGeoJSON('{"type": "Point", "coordinates": [10, 30]}');
+                point = geoJsonToEsriJson('{"type": "Point", "coordinates": [10, 30]}')[0];
                 graphicBuffer.add(new Graphic({
                     geometry: point,
                     symbol: markerSymbol
                 }));
                 graphicBuffer.add(pointGraphic);
-                point=parseGeoJSON('{"type": "Point", "coordinates": [40, 40]}');
+                point = geoJsonToEsriJson('{"type": "Point", "coordinates": [40, 40]}')[0];
                 graphicBuffer.add(new Graphic({
                     geometry: point,
                     symbol: markerSymbol
@@ -125,12 +128,11 @@ const options = {
                 graphicBuffer.add(pointGraphic);
 
 
-
-                var polyline  = parseGeoJSON(GeoJsonExamplePolyline);
+                var polyline = geoJsonToEsriJson(GeoJsonExamplePolyline)[0];
 
                 var lineSymbol = {
                     type: 'simple-line',
-                    color: [250,120,50],
+                    color: [250, 120, 50],
                     width: 3
                 };
 
@@ -156,16 +158,15 @@ const options = {
                 this.showGraphics = () => {
                     if (this.state.visiblePoints) {
                         view.graphics.removeAll();
-                        this.setState({visiblePoints: false});
-                    }
-                    else {
+                        // this.setState({visiblePoints: false});
+                    } else {
                         view.graphics.addMany(graphicBuffer)
-                        this.setState({visiblePoints: true})
+                        // this.setState({visiblePoints: true})
                     }
                 };
-            //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 view.popup.autoOpenEnabled = false;
-                view.on("click", (function(event) {
+                view.on("click", (function (event) {
                     // Get the mapInfo of the click on the view
                     var lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
                     var lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
@@ -174,7 +175,7 @@ const options = {
                     this.mapInfo.currentLon = lon;
                 }).bind(this));
 
-                view.on("double-click", (function(event) {
+                view.on("double-click", (function (event) {
                     event.stopPropagation();
                     var lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
                     var lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
@@ -189,52 +190,41 @@ const options = {
 
                 }).bind(this));
 
-            //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-                view.watch("zoom",() => {
+                view.watch("zoom", () => {
                     this.mapInfo.zoom = view.zoom.toFixed(2);
                 });
 
-                this.someDo = () => {
-                    view.goTo({
-                        center: [30, 50],
-                        zoom: 15
-                    },{
-                            duration: 1000,
-                            easing: "ease-in-out"
-                        });
-                };
+
 
             })
 
     }
 
 
-
     renderMap() {
-        if(this.state.status === 'loading') {
+        if (this.state.status === 'loading') {
             return <LoadingTitle><span>loading</span></LoadingTitle>;
         }
     }
 
     render() {
-
-        return(
+        this.showGraphics();
+        return (
             <MapContainer>
-            <div style={{height: '100%', width: '100%'}}>
-                <MapDiv id='viewDiv'  >
-                    {this.renderMap()}
-                </MapDiv>
-                <ControlPane>
-                    <button onClick={this.showGraphics}>Show</button>
-                    <button onClick={this.someDo}>Some Do</button>
-                    <MapInfoView>
-                        <p>Longitude: {this.mapInfo.currentLon}</p>
-                        <p>Latitude: {this.mapInfo.currentLat}</p>
-                        <p>Zoom: {this.mapInfo.zoom};</p>
-                    </MapInfoView>
-                </ControlPane>
-            </div>
+                <div style={{height: '100%', width: '100%'}}>
+                    <MapDiv id='viewDiv'>
+                        {this.renderMap()}
+                    </MapDiv>
+                    <ControlPane>
+                        <MapInfoView>
+                            <p>Longitude: {this.mapInfo.currentLon}</p>
+                            <p>Latitude: {this.mapInfo.currentLat}</p>
+                            <p>Zoom: {this.mapInfo.zoom};</p>
+                        </MapInfoView>
+                    </ControlPane>
+                </div>
             </MapContainer>
         )
     }
@@ -247,8 +237,8 @@ const MapContainer = styled.div`
 const MapDiv = styled.div`
     padding: 0;
     margin: 0;
-    height: calc(100vh - 50px);
-    width: '100%';
+    height: calc(100vh - 30px);
+    width: 100%;
     div.esri-ui-top-left.esri-ui-corner {
         display: none;
     }
@@ -271,7 +261,7 @@ const LoadingTitle = styled.div`
     
     span {
         font-size: 100px;
-        color: #3ec944;
+        color: #46b2f8;
         margin-top: 200px;
         margin-left: calc(50vw - 160px);
         display: block;
@@ -282,7 +272,7 @@ const ControlPane = styled.div`
     position: absolute;
     right: 0;
     top: 50px;
-    background: rgba(102,102,102,0.5);
+    background: rgba(102,102,102,0.0);
 `;
 
-export default  Map;
+export default Map;

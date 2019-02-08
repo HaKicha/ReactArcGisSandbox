@@ -1,5 +1,7 @@
-import React,{Component} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components'
+import LeftMenuObjectPane from './LeftMenuObjectPane'
+
 
 class LeftMenu extends Component {
 
@@ -10,16 +12,35 @@ class LeftMenu extends Component {
         };
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
+    componentWillReceiveProps(nextProps) {
         this.setState({
             visible: nextProps.isPaneOpen
         })
     }
 
     render() {
-        return(
+        return (
             <Container visible={this.state.visible}>
-                {'Тут може бути ваша реклама'}
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
+                <LeftMenuObjectPane/>
             </Container>
         )
     }
@@ -27,13 +48,20 @@ class LeftMenu extends Component {
 
 const Container = styled.div`
     position: absolute;
-    background: rgba(102,102,102,0.5);
-    display: ${props => props.visible?'block':'none'};
-    width: 300px;
+    background: rgba(226, 236, 255, 0);
+    display: ${props => props.visible ? 'block' : 'none'};
+    width: 200px;
     height: calc(100vh - 50px);
     top: 50px;
     left: 0;
     z-index: 1000;
+    overflow: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        width: 0;
+        background: transparent;
+    }
 `;
 
 const Button = styled.button`
