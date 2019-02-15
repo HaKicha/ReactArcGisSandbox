@@ -3,14 +3,15 @@ import {loadModules} from "esri-loader";
 import React from "react";
 import styled from 'styled-components'
 import {observable} from 'mobx'
-import {observer} from "mobx-react";
+import {inject, observer} from "mobx-react";
 import geoJsonToEsriJson from '../modules/GeoJsonParser';
+
 
 const options = {
     url: 'https://js.arcgis.com/4.6/'
 };
 
-
+@inject('store')
 @observer
 class Map extends Component {
 
@@ -33,6 +34,7 @@ class Map extends Component {
         zoom: 15
     };
 
+    mapOpjectStore = this.props.store.store;
     componentWillReceiveProps(nextProps) {
         this.setState({visiblePoints: nextProps.isGraphicsVisible});
     }
@@ -50,7 +52,7 @@ class Map extends Component {
                     container: "viewDiv",
                     map,
                     zoom: this.mapInfo.zoom,
-                    center: [30.545, 50.43]
+                    center: [30, 50]
                 });
                 var toggle = new BasemapToggle({
                     view: view,
@@ -67,93 +69,7 @@ class Map extends Component {
 
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-                let GeoJsonExample = '{"type": "Point", "coordinates": [30, 50]}';
-                let GeoJsonExamplePolyline = '{\n' +
-                    '    "type": "LineString", \n' +
-                    '    "coordinates": [\n' +
-                    '        [30, 50], [10, 30], [40, 40], [30,50]\n' +
-                    '    ]\n' +
-                    '}';
-
-                let point = geoJsonToEsriJson(GeoJsonExample)[0];
-
-
-                var markerSymbol = {
-                    type: "simple-marker",
-                    color: [250, 120, 50],
-                    outline: {
-                        color: [255, 255, 255],
-                        width: 1
-                    }
-                };
-
-                var lineAtt = {
-                    Name: 'Border',
-                    Owner: 'Kicha'
-                };
-
-                var pointGraphic = new Graphic({
-                    geometry: point,
-                    symbol: markerSymbol,
-                    attributes: lineAtt,
-                    popupTemplate: { // autocasts as new PopupTemplate()
-                        title: "{Name}",
-                        content: [{
-                            type: "fields",
-                            fieldInfos: [{
-                                fieldName: "Name"
-                            }, {
-                                fieldName: "Owner"
-                            }]
-                        }]
-                    }
-                });
-
-                //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-                var graphicBuffer = new Collection();
-                graphicBuffer.add(pointGraphic);
-                point = geoJsonToEsriJson('{"type": "Point", "coordinates": [10, 30]}')[0];
-                graphicBuffer.add(new Graphic({
-                    geometry: point,
-                    symbol: markerSymbol
-                }));
-                graphicBuffer.add(pointGraphic);
-                point = geoJsonToEsriJson('{"type": "Point", "coordinates": [40, 40]}')[0];
-                graphicBuffer.add(new Graphic({
-                    geometry: point,
-                    symbol: markerSymbol
-                }));
-                graphicBuffer.add(pointGraphic);
-
-
-                var polyline = geoJsonToEsriJson(GeoJsonExamplePolyline)[0];
-
-                var lineSymbol = {
-                    type: 'simple-line',
-                    color: [250, 120, 50],
-                    width: 3
-                };
-
-                var polylineGraphic = new Graphic({
-                    geometry: polyline,
-                    symbol: lineSymbol,
-                    attributes: lineAtt,
-                    popupTemplate: { // autocasts as new PopupTemplate()
-                        title: "{Name}",
-                        content: [{
-                            type: "fields",
-                            fieldInfos: [{
-                                fieldName: "Name"
-                            }, {
-                                fieldName: "Owner"
-                            }]
-                        }]
-                    }
-                });
-
-                graphicBuffer.add(polylineGraphic);
+               var graphicBuffer = new Collection();
 
                 this.showGraphics = () => {
                     if (this.state.visiblePoints) {
@@ -196,7 +112,7 @@ class Map extends Component {
                     this.mapInfo.zoom = view.zoom.toFixed(2);
                 });
 
-
+                // ?***************************************************************************************************
 
             })
 
