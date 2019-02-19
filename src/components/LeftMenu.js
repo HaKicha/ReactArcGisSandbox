@@ -1,46 +1,44 @@
 import React, {Component} from 'react';
 import styled from 'styled-components'
 import LeftMenuObjectPane from './LeftMenuObjectPane'
+import {inject, observer} from "mobx-react";
+import geoJsonToEsriJson from '../modules/GeoJsonParser';
 
-
+@inject('store')
+@observer
 class LeftMenu extends Component {
+
+    mapObjectStore = this.props.store.store;
+    createPanels = () => {
+        return this.props.store.store.map(elem => {
+            let geoData = geoJsonToEsriJson(elem.geoData)[0];
+            let options = {
+                actionType: elem.actionType,
+                source: elem.source,
+                victims: elem.victims,
+                injured: elem.injured,
+                timestamp: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',',''),
+                link: elem.link,
+                latitude: geoData.latitude,
+                longitude: geoData.longitude
+            };
+            return(
+                <LeftMenuObjectPane options={options} key={elem.id}/>
+            )
+        })
+    };
+    panels = [];
 
     constructor(props) {
         super(props);
-        this.state = {
-            visible: this.props.isPaneOpen
-        };
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            visible: nextProps.isPaneOpen
-        })
-    }
 
     render() {
+        this.panels = this.createPanels();
         return (
-            <Container visible={this.state.visible}>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
-                <LeftMenuObjectPane/>
+            <Container id={'leftPane'} style={{display:'none'}}>
+                {this.panels}
             </Container>
         )
     }
@@ -49,12 +47,11 @@ class LeftMenu extends Component {
 const Container = styled.div`
     position: absolute;
     background: rgba(226, 236, 255, 0);
-    display: ${props => props.visible ? 'block' : 'none'};
-    width: 200px;
+    width: 250px;
     height: calc(100vh - 50px);
     top: 50px;
     left: 0;
-    z-index: 1000;
+    z-index: 10;
     overflow: scroll;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -64,8 +61,5 @@ const Container = styled.div`
     }
 `;
 
-const Button = styled.button`
-    
-`
 
 export default LeftMenu;

@@ -1,8 +1,9 @@
 import React, {Component} from 'react'
 import styled from 'styled-components'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faList,faFilter,faSearch,faEye,faEyeSlash} from "@fortawesome/free-solid-svg-icons";
+import {faList,faFilter,faEye,faEyeSlash,faSyncAlt} from "@fortawesome/free-solid-svg-icons";
 
+import {reloadGraphic} from "./Map";
 
 class Navbar extends Component {
 
@@ -18,26 +19,39 @@ class Navbar extends Component {
         this.setState((prevState) => {return {isPointsVisible: !prevState.isPointsVisible}});
     }
 
+    openLeftPane = () => {
+        if (document.getElementById('leftPane').style.display === 'none') {
+            document.getElementById('leftPane').style.display = 'block';
+        }
+        else document.getElementById('leftPane').style.display = 'none';
+    }
+
+    reloadGraphic = () => {
+        console.log("start")
+        reloadGraphic();
+    };
+
     render() {
         return (
             <NavbarUl>
-                <NavbarLi onClick={this.props.openLeftPane}>
+                <NavbarLi onClick={this.openLeftPane}>
                     <NavbarElem>
                         <FontAwesomeIcon icon={faList}/>
                     </NavbarElem>
                 </NavbarLi>
 
                 <NavbarLi>
-                    <NavbarElem>
+                    <NavbarElem onClick={this.props.openFilters}>
                         <FontAwesomeIcon icon={faFilter}/>
                     </NavbarElem>
                 </NavbarLi>
 
-                <NavbarLi>
+                <NavbarLi onClick={this.reloadGraphic}>
                     <NavbarElem>
-                        <FontAwesomeIcon icon={faSearch}/>
+                        <FontAwesomeIcon icon={faSyncAlt}/>
                     </NavbarElem>
                 </NavbarLi>
+
                 <NavbarLi onClick={this.showMapPoints}>
                     <NavbarElem>
                         <FontAwesomeIcon icon={(this.state.isPointsVisible)?faEye:faEyeSlash}/>

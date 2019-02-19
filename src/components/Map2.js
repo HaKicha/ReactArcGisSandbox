@@ -89,7 +89,7 @@ class Map extends Component {
                 };
 
                 var lineAtt = {
-                    Name: 'Border',
+                    Name: 'Point',
                     Owner: 'Kicha'
                 };
 

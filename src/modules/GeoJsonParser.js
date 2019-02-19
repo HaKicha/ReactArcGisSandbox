@@ -4,8 +4,8 @@ function geoJsonToEsriJson(GeoJSON) {
     switch (GeoInfoObj.type) {
         case 'Point': {
             GeoInfoObj.type = 'point';
-            GeoInfoObj.longitude = GeoInfoObj.coordinates[0] + '';
-            GeoInfoObj.latitude = GeoInfoObj.coordinates[1] + '';
+            GeoInfoObj.longitude = GeoInfoObj.coordinates[0];
+            GeoInfoObj.latitude = GeoInfoObj.coordinates[1];
             delete GeoInfoObj.coordinates;
             result.push(GeoInfoObj);
             return result;
@@ -32,10 +32,14 @@ function geoJsonToEsriJson(GeoJSON) {
             }
         }
         case 'MultiPoint': {
-            GeoInfoObj.type = 'multipoint';
-            GeoInfoObj.points = GeoInfoObj.coordinates;
+            GeoInfoObj.type = 'point';
+            let coordinates = GeoInfoObj.coordinates;
             delete GeoInfoObj.coordinates;
-            result.push(GeoInfoObj);
+            coordinates.map((point) => {
+                GeoInfoObj.longitude = point[0];
+                GeoInfoObj.latitude = point[1];
+                return GeoInfoObj;
+            });
             return result;
         }
         case 'MultiPolygon': {

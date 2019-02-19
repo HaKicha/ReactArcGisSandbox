@@ -1,21 +1,40 @@
 import {observable} from "mobx";
+import getData from '../resources/temp'
 
 export default class mapObjectStore {
 
     @observable
     store = [];
 
-    addMapObject = (title,priority,link,x,y,source) => {
+    addMapObject = (id, actionType, source, victims, injured, geoData, link, timestamp) => {
           this.store.push(
               {
-                  title: title,
-                  priority: priority,
+                  id: id,
+                  actionType: actionType,
+                  source: source,
+                  victims: victims,
+                  injured: injured,
+                  geoData: geoData,
                   link: link,
-                  x: x,
-                  y: y,
-                  source: source
+                  timestamp: timestamp
               }
+
           );
     };
+
+    getFromJson = () => {
+        JSON.parse(getData()).forEach(elem => {
+            this.addMapObject(
+                elem.id,
+                elem.actionType,
+                elem.source,
+                elem.victims,
+                elem.injured,
+                elem.geoData,
+                elem.link,
+                elem.timestamp
+            )
+        });
+    }
 
 }
