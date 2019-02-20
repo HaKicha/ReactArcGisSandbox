@@ -10,7 +10,7 @@ import getSvgUrl from '../modules/SvgUrlStore';
 const options = {
     url: 'https://js.arcgis.com/4.6/'
 };
-let reloadGraphic = () => {};
+let addGraphic = () => {};
 let goToPoint = () => {};
 
 @inject('store')
@@ -46,7 +46,6 @@ class Map extends Component {
     }
 
     componentDidMount() {
-        this.props.store.getFromJson();
         loadModules(['esri/Map',
             'esri/views/MapView',
             "esri/widgets/BasemapToggle",
@@ -81,13 +80,15 @@ class Map extends Component {
                 var graphicBuffer = new Collection();
 
                 this.showGraphics = () => {
+
                     if (this.state.visiblePoints) {
                         view.graphics.removeAll();
-                        // this.setState({visiblePoints: false});
                     } else {
+                        view.graphics.removeAll();
+                        graphicBuffer.sort((a,b) => {
+                            return(a.geometry.type==='point')?1:-1;
+                        });
                         view.graphics.addMany(graphicBuffer)
-                        // this.setState({visiblePoints: true})
-                        console.log(graphicBuffer);
                     }
                 };
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -123,10 +124,8 @@ class Map extends Component {
                 });
 
                 // ?***************************************************************************************************
-                reloadGraphic = (() => {
-                    graphicBuffer.removeAll();
+                addGraphic = ((elem) => {
                     let obj, marker, attributes, objGraphic;
-                    this.mapObjectStore.forEach((elem) => {
                         obj = geoJsonToEsriJson(elem.geoData);
                         obj.forEach( (place) => {
                             attributes = {
@@ -139,9 +138,8 @@ class Map extends Component {
                             };
                             switch (place.type) {
                                 case 'point': {
-                                    let point = geoJsonToEsriJson(elem.geoData)[0];
                                     graphicBuffer.add(new Graphic({
-                                        geometry: point,
+                                        geometry: place,
                                         symbol:  {
                                             type: "picture-marker",
                                             url: getSvgUrl(elem.source),
@@ -149,29 +147,29 @@ class Map extends Component {
                                             height: 40
                                         },
                                         attributes: {
-                                            id: elem.id,
-                                            actionType: elem.actionType,
-                                            source: elem.source,
-                                            victims: elem.victims,
-                                            injured: elem.injured,
-                                            timestamp: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
+                                            ID: elem.id,
+                                            Event: elem.actionType,
+                                            Source: elem.source,
+                                            Victims: elem.victims,
+                                            Injured: elem.injured,
+                                            Time: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
                                         },
                                         popupTemplate: {
-                                            title: "Action",
+                                            title: "Event",
                                             content: [{
                                                 type: 'fields',
                                                 fieldInfos: [{
-                                                    fieldName: "id"
+                                                    fieldName: "ID"
                                                 }, {
-                                                    fieldName: "actionType"
+                                                    fieldName: "Event"
                                                 }, {
-                                                    fieldName: "source"
+                                                    fieldName: "Source"
                                                 }, {
-                                                    fieldName: "victims"
+                                                    fieldName: "Victims"
                                                 }, {
-                                                    fieldName: "injured"
+                                                    fieldName: "Injured"
                                                 }, {
-                                                    fieldName: "timestamp"
+                                                    fieldName: "Time"
                                                 }]
                                             }]
                                         }
@@ -181,7 +179,7 @@ class Map extends Component {
                                 case 'polyline': {
                                     marker = {
                                         type: 'simple-line',
-                                        color: [50, 50, 50],
+                                        color: [0, 0, 0],
                                         width: 3
                                     };
                                     objGraphic = new Graphic({
@@ -194,32 +192,39 @@ class Map extends Component {
                                 case 'polygon': {
                                     marker = {
                                         type: "simple-fill", // autocasts as new SimpleFillSymbol()
-                                        color: [50, 50, 50, 0.8],
+                                        color: [50, 50, 50, 0.4],
                                         outline: { // autocasts as new SimpleLineSymbol()
-                                            color: [255, 255, 255],
+                                            color: [0, 0, 0],
                                             width: 1
                                         }
                                     };
                                     objGraphic = new Graphic({
-                                        geometry: obj,
+                                        geometry: place,
                                         symbol: marker,
-                                        attributes: attributes,
+                                        attributes: {
+                                            ID: elem.id,
+                                            Event: elem.actionType,
+                                            Source: elem.source,
+                                            Victims: elem.victims,
+                                            Injured: elem.injured,
+                                            Time: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
+                                    },
                                         popupTemplate: {
-                                            title: "Action",
+                                            title: "Event",
                                             content: [{
                                                 type: 'fields',
                                                 fieldInfos: [{
-                                                    fieldName: "id"
+                                                    fieldName: "ID"
                                                 }, {
-                                                    fieldName: "actionType"
+                                                    fieldName: "Event type"
                                                 }, {
-                                                    fieldName: "source"
+                                                    fieldName: "Source"
                                                 }, {
-                                                    fieldName: "victims"
+                                                    fieldName: "Victims"
                                                 }, {
-                                                    fieldName: "injured"
+                                                    fieldName: "Injured"
                                                 }, {
-                                                    fieldName: "timestamp"
+                                                    fieldName: "Time"
                                                 }]
                                             }]
                                         }
@@ -228,9 +233,8 @@ class Map extends Component {
                                     break;
                                 }
                             }
-                        })
+                        });
                         this.showGraphics()
-                    });
                 }).bind(this);
                 //    *****************************************************************************************************
 
@@ -239,11 +243,14 @@ class Map extends Component {
                         center: [lon, lat],
                         zoom: 15
                     },{
-                        duration: 3000
+                        duration: 3000,
+                        easing: 'ease-in-out'
                     });
                 }).bind(this);
 
                 //    *****************************************************************************************************
+                this.props.store.getFromJson();
+
             })
 
     }
@@ -321,6 +328,6 @@ const ControlPane = styled.div`
 export {
     Map,
     goToPoint,
-    reloadGraphic
+    addGraphic
 };
 

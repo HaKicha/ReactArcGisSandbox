@@ -1,5 +1,6 @@
 import {observable} from "mobx";
 import getData from '../resources/temp'
+import {addGraphic} from "../components/Map";
 
 export default class mapObjectStore {
 
@@ -20,6 +21,16 @@ export default class mapObjectStore {
               }
 
           );
+          addGraphic({
+              id: id,
+              actionType: actionType,
+              source: source,
+              victims: victims,
+              injured: injured,
+              geoData: geoData,
+              link: link,
+              timestamp: timestamp
+          });
     };
 
     getFromJson = () => {

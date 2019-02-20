@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faList,faFilter,faEye,faEyeSlash,faSyncAlt} from "@fortawesome/free-solid-svg-icons";
 
-import {reloadGraphic} from "./Map";
 
 class Navbar extends Component {
 
@@ -26,10 +25,6 @@ class Navbar extends Component {
         else document.getElementById('leftPane').style.display = 'none';
     }
 
-    reloadGraphic = () => {
-        console.log("start")
-        reloadGraphic();
-    };
 
     render() {
         return (
@@ -43,12 +38,6 @@ class Navbar extends Component {
                 <NavbarLi>
                     <NavbarElem onClick={this.props.openFilters}>
                         <FontAwesomeIcon icon={faFilter}/>
-                    </NavbarElem>
-                </NavbarLi>
-
-                <NavbarLi onClick={this.reloadGraphic}>
-                    <NavbarElem>
-                        <FontAwesomeIcon icon={faSyncAlt}/>
                     </NavbarElem>
                 </NavbarLi>
 

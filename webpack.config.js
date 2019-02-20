@@ -17,10 +17,21 @@ module.exports = {
                 use: ["babel-loader"]
             },
             {
-                test: /\.(png|jpg|gif)$/,
+                test: /\.(png|jpg|gif|svg)$/,
                 use: [
                     {
                         loader: "file-loader",
+                        options: {
+                            name: '[path][name].[ext]'
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: 'style-loader',
                         options: {}
                     }
                 ]

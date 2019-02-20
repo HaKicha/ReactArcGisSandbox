@@ -8,10 +8,45 @@ import geoJsonToEsriJson from '../modules/GeoJsonParser';
 @observer
 class LeftMenu extends Component {
 
-    mapObjectStore = this.props.store.store;
+    getPoint = (elem) => {
+        let geoData = geoJsonToEsriJson(elem)[0];
+
+        switch (geoData.type) {
+            case 'point': {
+                return {
+                    latitude: geoData.latitude,
+                    longitude: geoData.longitude
+                }
+            }
+            case 'polyline': {
+                let lat=0 ,lon=0;
+                geoData.paths.forEach((a) => {
+                   lat += a[1];
+                   lon += a[0];
+                });
+                return {
+                    latitude: lat/geoData.paths.length,
+                    longitude: lon/geoData.paths.length
+                }
+            }
+            case 'polygon': {
+                let lat=0 ,lon=0;
+                geoData.rings.forEach((a) => {
+                    lat += a[1];
+                    lon += a[0];
+                });
+                return {
+                    latitude: lat/geoData.rings.length,
+                    longitude: lon/geoData.rings.length
+                }
+            }
+        }
+    }
+
     createPanels = () => {
         return this.props.store.store.map(elem => {
             let geoData = geoJsonToEsriJson(elem.geoData)[0];
+            let point = this.getPoint(elem.geoData);
             let options = {
                 actionType: elem.actionType,
                 source: elem.source,
@@ -19,8 +54,8 @@ class LeftMenu extends Component {
                 injured: elem.injured,
                 timestamp: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',',''),
                 link: elem.link,
-                latitude: geoData.latitude,
-                longitude: geoData.longitude
+                latitude: point.latitude,
+                longitude: point.longitude
             };
             return(
                 <LeftMenuObjectPane options={options} key={elem.id}/>

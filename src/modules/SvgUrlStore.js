@@ -1,24 +1,27 @@
+import facebookLogo from '../resources/image/facebook.svg';
+import twitterLogo from '../resources/image/twitter.svg';
+import natoLogo from '../resources/image/nato.svg';
+import newsLogo from '../resources/image/news.svg';
+import gichdLogo from '../resources/image/gichd.svg';
+
+
 export default function getSvgUrl(type) {
 
     switch (type) {
-        case 'twitter':
-            return 'https://s4.aconvert.com/convert/p3r68-cdx67/cb7nu-8b921.svg';
-            break;
-        case 'facebook':
-            return 'https://s4.aconvert.com/convert/p3r68-cdx67/cbb84-h79e9.svg';
-            break;
-
-        case 'nato':
-            return 'https://s4.aconvert.com/convert/p3r68-cdx67/cbzn2-eiyua.svg';
-            break;
-
-        case 'news':
-            return 'https://s4.aconvert.com/convert/p3r68-cdx67/cbbh3-e0k2r.svg';
-            break;
-
-        case 'gichd':
-            return 'https://s4.aconvert.com/convert/p3r68-cdx67/cb5rh-5gw0t.svg';
-
+        case 'twitter': {
+            return twitterLogo;
+        }
+        case 'facebook': {
+            return facebookLogo;
+        }
+        case 'nato': {
+            return natoLogo;
+        }
+        case 'news': {
+            return newsLogo;
+        }
+        case 'gichd': {
+            return gichdLogo;
+        }
     }
-
 }

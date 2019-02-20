@@ -19,7 +19,7 @@ function geoJsonToEsriJson(GeoJSON) {
         }
         case 'Polygon': {
             GeoInfoObj.type = 'polygon';
-            if (typeof (GeoInfoObj.coordinates[0][0]) !== 'undefined') {
+            if (typeof (GeoInfoObj.coordinates[2]) === 'undefined') {
                 GeoInfoObj.rings = GeoInfoObj.coordinates[0].concat(GeoInfoObj.coordinates[1]);
                 delete GeoInfoObj.coordinates;
                 result.push(GeoInfoObj);
