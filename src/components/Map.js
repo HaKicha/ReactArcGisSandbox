@@ -309,7 +309,7 @@ const MapContainer = styled.div`
 const MapDiv = styled.div`
     padding: 0;
     margin: 0;
-    height: calc(100vh - 30px);
+    height: calc(100vh - 50px);
     width: 100%;
 `;
 

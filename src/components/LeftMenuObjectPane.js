@@ -90,7 +90,7 @@ const Image = styled.img`
     height: 40px;
     display: block;
     cursor: pointer;
-    margin: 5px 5px;
+    margin: 0px 5px 5px 5px;
     float: left;
 `;
 
