@@ -12,12 +12,14 @@ const options = {
 };
 let addGraphic = () => {};
 let goToPoint = () => {};
+let reloadGraphics = () => {};
+
 
 @inject('store')
 @observer
 class Map extends Component {
 
-    mapObjectStore = this.props.store.store;
+    mapObjectStore = this.props.store;
 
     constructor(props) {
         super(props);
@@ -30,8 +32,6 @@ class Map extends Component {
     }
 
     showGraphics = () => {
-    };
-    reloadGraphic = () => {
     };
 
     @observable
@@ -46,6 +46,7 @@ class Map extends Component {
     }
 
     componentDidMount() {
+        this.mapObjectStore.clearFilters();
         loadModules(['esri/Map',
             'esri/views/MapView',
             "esri/widgets/BasemapToggle",
@@ -91,6 +92,20 @@ class Map extends Component {
                         view.graphics.addMany(graphicBuffer)
                     }
                 };
+
+                this.clearGraphics = () => {
+                    view.graphics.removeAll();
+                };
+                reloadGraphics = (() => {
+                    console.log('reloading')
+                    view.graphics.removeAll();
+                    graphicBuffer.removeAll();
+                    this.mapObjectStore.store.forEach(elem => {addGraphic(elem)});
+                    graphicBuffer.sort((a,b) => {
+                        return(a.geometry.type==='point')?1:-1;
+                    });
+                    view.graphics.addMany(graphicBuffer);
+                }).bind(this);
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 view.popup.autoOpenEnabled = false;
                 view.on("click", (function (event) {
@@ -250,6 +265,10 @@ class Map extends Component {
 
                 //    *****************************************************************************************************
                 this.props.store.getFromJson();
+                this.clearGraphics();
+                this.mapObjectStore.globalStore.forEach(elem => {addGraphic(elem)});
+                this.mapObjectStore.clearFilters();
+
 
             })
 
@@ -328,6 +347,7 @@ const ControlPane = styled.div`
 export {
     Map,
     goToPoint,
-    addGraphic
+    addGraphic,
+    reloadGraphics
 };
 

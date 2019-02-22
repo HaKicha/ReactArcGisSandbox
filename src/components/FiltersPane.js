@@ -4,6 +4,10 @@ import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import styled from 'styled-components';
 import Flatpickr from 'react-flatpickr'
+import {inject} from "mobx-react";
+import {reloadGraphics} from '../components/Map'
+
+
 
 Modal.setAppElement('#root');
 const customStyles = {
@@ -17,7 +21,7 @@ const customStyles = {
         background            : '#e5f4fc'
     }
 };
-
+@inject('store')
 export default class FiltersPane extends React.Component{
 
     constructor(props) {
@@ -27,13 +31,51 @@ export default class FiltersPane extends React.Component{
         }
     }
 
+    mapObjStore = this.props.store;
+
     componentWillReceiveProps(nextProps, nextContext) {
         this.setState({
             isModalOpen: nextProps.isModalOpen
         });
     }
 
+    clearFilters = () => {
+        this.mapObjStore.clearFilters();
+        this.props.closeModal();
+        setTimeout(this.props.showMapPoints,0);
+        setTimeout(this.props.showMapPoints,100);
+    };
+
+    applyFilters = () => {
+        this.mapObjStore.applyFilters(this.searchExpression);
+        reloadGraphics();
+        this.props.closeModal();
+        setTimeout(this.props.showMapPoints,0);
+        setTimeout(this.props.showMapPoints,100);
+    };
+
+    searchExpression = {
+        eventType: '',
+        sourceType: '',
+        victims_min: '',
+        victims_max: '',
+        injured_min: '',
+        injured_max: '',
+        startDate: '',
+        endDate: ''
+    };
+
     render() {
+        this.searchExpression = {
+            eventType: '',
+            sourceType: '',
+            victims_min: '',
+            victims_max: '',
+            injured_min: '',
+            injured_max: '',
+            startDate: '',
+            endDate: ''
+        };
         return(
             <Modal
                 isOpen={this.state.isModalOpen}
@@ -41,7 +83,7 @@ export default class FiltersPane extends React.Component{
                 contentLabel="Example Modal">
                 <Container>
                     <MainHeader style={{margin:'0', width: '300px'}}>Filters</MainHeader>
-                    <CloseButton><FontAwesomeIcon icon={faTimes} onClick={this.props.closeModal}
+                    <CloseButton><FontAwesomeIcon icon={faTimes} onClick={this.clearFilters}
                     style={{
                         display: 'block',
                         cursor: 'pointer'
@@ -52,11 +94,11 @@ export default class FiltersPane extends React.Component{
                     <br/>
                     <div>
                         <Label htmlFor="eventType">Event type:</Label>
-                        <TextInput id={'eventType'}/>
+                        <TextInput id={'eventType'} onChange={(event) => {this.searchExpression.eventType = event.target.value}}/>
                     </div>
                     <div style={{display: 'inline'}}>
-                        <Label htmlFor="sourceType">Source:</Label>
-                        <SelectInput name="" id="sourceType">
+                        <Label  htmlFor="sourceType">Source:</Label>
+                        <SelectInput name="" id="sourceType" onChange={(event) => {this.searchExpression.sourceType = event.target.value}}>
                             <option value="">All</option>
                             <option value="twitter">Twitter</option>
                             <option value="facebook">Facebook</option>
@@ -67,21 +109,29 @@ export default class FiltersPane extends React.Component{
                     </div>
                     <div>
                         <Label htmlFor="victims_min">Victims:</Label>
-                        <NumberInput id={'victims_max'} type={'number'} placeholder={'max'} min={'0'}/>
-                        <NumberInput id={'victims_min'} type={'number'} placeholder={'min'} min={'0'}/>
+                        <NumberInput id={'victims_max'} type={'number'} placeholder={'max'} min={'0'}
+                                     onChange={(event) => {this.searchExpression.victims_max = event.target.value}}/>
+                        <NumberInput id={'victims_min'} type={'number'} placeholder={'min'} min={'0'}
+                                     onChange={(event) => {this.searchExpression.victims_min = event.target.value}}/>
 
                     </div>
                     <div>
                         <Label htmlFor="injured_min">Injured:</Label>
-                        <NumberInput id={'injured_max'} type={'number'} placeholder={'max'} min={'0'}/>
-                        <NumberInput id={'injured_min'} type={'number'} placeholder={'min'} min={'0'}/>
+                        <NumberInput id={'injured_max'} type={'number'} placeholder={'max'} min={'0'}
+                                     onChange={(event) => {this.searchExpression.injured_max = event.target.value}}/>
+                        <NumberInput id={'injured_min'} type={'number'} placeholder={'min'} min={'0'}
+                                     onChange={(event) => {this.searchExpression.injured_min = event.target.value}}/>
                     </div>
                     <div>
                         <Label htmlFor="datepicker">Date:</Label>
-                        <Flatpickr data-enable-time options={{mode: "range"}} id={'datepicker'}/>
+                        <Flatpickr data-enable-time options={{mode: "range"}} id={'datepicker'} onChange={date => {
+                            if(typeof date[1] !== 'undefined') {
+                                this.searchExpression.startDate = date[0].valueOf();
+                                this.searchExpression.endDate = date[1].valueOf();
+                            }}}/>
                     </div>
-                    <Button bgColor={'#46b2f8'} hoverColor={'#21a7ff'} color={'white'}>Apply</Button>
-                    <Button bgColor={'white'} hoverColor={'#e0f2ff'} color={'black'}>Clear</Button>
+                    <Button bgColor={'#46b2f8'} hoverColor={'#21a7ff'} color={'white'} onClick={this.applyFilters}>Apply</Button>
+                    <Button bgColor={'white'} hoverColor={'#e0f2ff'} color={'black'} onClick={this.clearFilters}>Clear</Button>
                 </Container>
             </Modal>
         )

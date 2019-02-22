@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import styled from 'styled-components';
 import LeftMenu from './LeftMenu'
 import FiltersPane from "./FiltersPane";
-
+import {reloadGraphics} from '../components/Map'
 
     class App extends Component {
 
@@ -28,6 +28,7 @@ import FiltersPane from "./FiltersPane";
         this.setState((prevState) => {
             return {isModalOpen: !prevState.isModalOpen}
         });
+        reloadGraphics();
     }
 
 
@@ -39,7 +40,7 @@ import FiltersPane from "./FiltersPane";
                 <div style={{width: "100%", height: "100%"}} >
                     <Map isGraphicsVisible={this.state.isGraphicsVisible}/>
                 </div>
-                <FiltersPane closeModal={this.toggleModal} isModalOpen={this.state.isModalOpen}/>
+                <FiltersPane closeModal={this.toggleModal} isModalOpen={this.state.isModalOpen} showMapPoints={this.showMapPoints}/>
             </Container>
         );
     }

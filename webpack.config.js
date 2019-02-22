@@ -1,12 +1,14 @@
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
 
 module.exports = {
     entry: "./src/index.js",
     output: {
         publicPath: '/',
-        path: path.join(__dirname, "/dist"),
+        path: path.join(__dirname, "dist"),
         filename: "index-bundle.js"
     },
     module: {
@@ -26,20 +28,12 @@ module.exports = {
                         }
                     }
                 ]
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    {
-                        loader: 'style-loader',
-                        options: {}
-                    }
-                ]
             }
 
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
             template: './src/index.html'
         }),
