@@ -7,7 +7,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = {
     entry: "./src/index.js",
     output: {
-        publicPath: '/',
         path: path.join(__dirname, "dist"),
         filename: "index-bundle.js"
     },

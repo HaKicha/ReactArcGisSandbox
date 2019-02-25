@@ -52,9 +52,8 @@ class Map extends Component {
             "esri/widgets/BasemapToggle",
             "esri/Graphic",
             "esri/core/Collection",
-            "esri/geometry/Point",
-            "esri/layers/FeatureLayer"], options)
-            .then(([Map, MapView, BasemapToggle, Graphic, Collection, Point, FeatureLayer]) => {
+            "esri/layers/GraphicsLayer"], options)
+            .then(([Map, MapView, BasemapToggle, Graphic, Collection, GraphicsLayer]) => {
                 const map = new Map({basemap: "topo"});
                 const view = new MapView({
                     container: "viewDiv",
@@ -75,6 +74,8 @@ class Map extends Component {
                         status: 'loaded'
                     });
                 });
+                let graphicsLayer = new GraphicsLayer();
+                map.layers.add(graphicsLayer);
 
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -83,28 +84,28 @@ class Map extends Component {
                 this.showGraphics = () => {
 
                     if (this.state.visiblePoints) {
-                        view.graphics.removeAll();
+                        graphicsLayer.graphics.removeAll();
                     } else {
-                        view.graphics.removeAll();
+                        graphicsLayer.graphics.removeAll();
                         graphicBuffer.sort((a,b) => {
                             return(a.geometry.type==='point')?1:-1;
                         });
-                        view.graphics.addMany(graphicBuffer)
+                        graphicsLayer.graphics.addMany(graphicBuffer)
                     }
                 };
 
                 this.clearGraphics = () => {
-                    view.graphics.removeAll();
+                    graphicsLayer.graphics.removeAll();
                 };
                 reloadGraphics = (() => {
                     console.log('reloading')
-                    view.graphics.removeAll();
+                    graphicsLayer.graphics.removeAll();
                     graphicBuffer.removeAll();
                     this.mapObjectStore.store.forEach(elem => {addGraphic(elem)});
                     graphicBuffer.sort((a,b) => {
                         return(a.geometry.type==='point')?1:-1;
                     });
-                    view.graphics.addMany(graphicBuffer);
+                    graphicsLayer.graphics.addMany(graphicBuffer);
                 }).bind(this);
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 view.popup.autoOpenEnabled = false;
