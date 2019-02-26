@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import styled from 'styled-components'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faList,faFilter,faEye,faEyeSlash,faSyncAlt} from "@fortawesome/free-solid-svg-icons";
+import {faList,faFilter,faEye,faEyeSlash, faSlidersH} from "@fortawesome/free-solid-svg-icons";
+import {faEye as faEyeRegular,faEyeSlash as faEyeSlashRegular} from "@fortawesome/free-regular-svg-icons";
 
 
 class Navbar extends Component {
@@ -9,14 +10,21 @@ class Navbar extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isPointsVisible: true
+            isPointsVisible: true,
+            isHeatmapVisible: false
         }
     }
 
     showMapPoints = () => {
         this.props.showMapPoints();
         this.setState((prevState) => {return {isPointsVisible: !prevState.isPointsVisible}});
-    }
+    };
+
+    showHeatmap = () => {
+        this.props.showHeatmap();
+        this.setState((prevState) => {return {isHeatmapVisible: !prevState.isHeatmapVisible}});
+    };
+
 
     openLeftPane = () => {
         if (document.getElementById('leftPane').style.display === 'none') {
@@ -36,14 +44,26 @@ class Navbar extends Component {
                 </NavbarLi>
 
                 <NavbarLi>
-                    <NavbarElem onClick={this.props.openFilters}>
+                    <NavbarElem onClick={this.props.toggleFilters}>
                         <FontAwesomeIcon icon={faFilter}/>
                     </NavbarElem>
                 </NavbarLi>
 
-                <NavbarLi onClick={this.showMapPoints}>
+                <NavbarLi>
+                    <NavbarElem onClick={this.props.toggleSettings}>
+                        <FontAwesomeIcon icon={faSlidersH}/>
+                    </NavbarElem>
+                </NavbarLi>
+
+                <NavbarLi onClick={this.showMapPoints} className={'right'}>
                     <NavbarElem>
-                        <FontAwesomeIcon icon={(this.state.isPointsVisible)?faEye:faEyeSlash}/>
+                        <FontAwesomeIcon icon={(this.state.isPointsVisible)?faEyeRegular:faEyeSlashRegular}/>
+                    </NavbarElem>
+                </NavbarLi>
+
+                <NavbarLi onClick={this.showHeatmap} className={'right'}>
+                    <NavbarElem>
+                        <FontAwesomeIcon icon={(this.state.isHeatmapVisible)?faEyeSlash:faEye}/>
                     </NavbarElem>
                 </NavbarLi>
 
@@ -58,6 +78,9 @@ const NavbarUl = styled.ul`
       padding: 0;
       overflow: hidden;
       background-color: #e2ecff;
+       .right {
+      float: right;
+    }
 `;
 
 const NavbarLi = styled.li`
@@ -67,10 +90,9 @@ const NavbarLi = styled.li`
         cursor: pointer;
         color: white;
     }
-    :last-child {
-        float: right;
-    }
+
 `;
+
 
 const NavbarElem = styled.svg`
   display: block;

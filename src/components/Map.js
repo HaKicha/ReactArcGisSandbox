@@ -31,9 +31,8 @@ class Map extends Component {
 
     }
 
-    showGraphics = () => {
-    };
-
+    showGraphics = () => {};
+    toggleHeatMap = () => {};
     @observable
     mapInfo = {
         currentLat: 0,
@@ -43,6 +42,7 @@ class Map extends Component {
 
     componentWillReceiveProps(nextProps) {
         this.showGraphics(nextProps.isGraphicsVisible);
+        this.toggleHeatMap(nextProps.isHeatmapVisible);
     }
 
     componentDidMount() {
@@ -101,7 +101,7 @@ class Map extends Component {
                         { color: "#ea2600", ratio: 0.913 },
                         { color: "#ed1200", ratio: 1 }
                     ],
-                    maxPixelIntensity: 25,
+                    maxPixelIntensity: 10,
                     minPixelIntensity: 0
                 };
 
@@ -113,7 +113,8 @@ class Map extends Component {
                 const csvLayer = new CSVLayer({
                     url: csvFile,
                     popupTemplate: csvTemplate,
-                    renderer: renderer
+                    renderer: renderer,
+                    opacity: 0.7
                 });
                 // map.layers.add(csvLayer);
                 //*****************************************************************************************************
@@ -132,6 +133,10 @@ class Map extends Component {
                     }
                 };
 
+                this.toggleHeatMap = (a) => {
+                    if(a && !map.layers.includes(csvLayer)) map.layers.add(csvLayer);
+                    if(!a) map.layers.remove(csvLayer);
+                };
                 this.clearGraphics = () => {
                     graphicsLayer.graphics.removeAll();
                 };

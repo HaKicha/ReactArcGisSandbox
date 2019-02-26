@@ -27,7 +27,7 @@ export default class FiltersPane extends React.Component{
     constructor(props) {
         super(props)
         this.state = {
-            isModalOpen: this.props.isModalOpen
+            isFiltersOpen: this.props.isFiltersOpen
         }
     }
 
@@ -35,7 +35,7 @@ export default class FiltersPane extends React.Component{
 
     componentWillReceiveProps(nextProps, nextContext) {
         this.setState({
-            isModalOpen: nextProps.isModalOpen
+            isFiltersOpen: nextProps.isFiltersOpen
         });
     }
 
@@ -78,7 +78,7 @@ export default class FiltersPane extends React.Component{
         };
         return(
             <Modal
-                isOpen={this.state.isModalOpen}
+                isOpen={this.state.isFiltersOpen}
                 style={customStyles}
                 contentLabel="Example Modal">
                 <Container>
@@ -151,6 +151,8 @@ const Container = styled.div`
       height: 25px;
       float: right;
   }
+  
+  
 `;
 
 const MainHeader = styled.h2`
