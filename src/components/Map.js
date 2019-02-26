@@ -6,9 +6,10 @@ import {observable} from 'mobx'
 import {inject, observer} from "mobx-react";
 import geoJsonToEsriJson from '../modules/GeoJsonParser';
 import getSvgUrl from '../modules/SvgUrlStore';
+import csvFile from '../resources/2.5_week.csv'
 
 const options = {
-    url: 'https://js.arcgis.com/4.6/'
+    url: 'https://js.arcgis.com/4.10/'
 };
 let addGraphic = () => {};
 let goToPoint = () => {};
@@ -26,7 +27,6 @@ class Map extends Component {
 
         this.state = {
             status: 'loading',
-            visiblePoints: false
         }
 
     }
@@ -42,7 +42,7 @@ class Map extends Component {
     };
 
     componentWillReceiveProps(nextProps) {
-        this.setState({visiblePoints: nextProps.isGraphicsVisible});
+        this.showGraphics(nextProps.isGraphicsVisible);
     }
 
     componentDidMount() {
@@ -52,8 +52,9 @@ class Map extends Component {
             "esri/widgets/BasemapToggle",
             "esri/Graphic",
             "esri/core/Collection",
-            "esri/layers/GraphicsLayer"], options)
-            .then(([Map, MapView, BasemapToggle, Graphic, Collection, GraphicsLayer]) => {
+            "esri/layers/GraphicsLayer",
+            "esri/layers/CSVLayer"], options)
+            .then(([Map, MapView, BasemapToggle, Graphic, Collection, GraphicsLayer,CSVLayer]) => {
                 const map = new Map({basemap: "topo"});
                 const view = new MapView({
                     container: "viewDiv",
@@ -61,29 +62,66 @@ class Map extends Component {
                     zoom: this.mapInfo.zoom,
                     center: [42.192, 35.357]
                 });
-                view.ui.move("zoom", "bottom-right");
+
                 var toggle = new BasemapToggle({
                     view: view,
                     basemaps: "hybrid"
                 });
+
                 view.ui.add(toggle, "bottom-right");
-                view.then(() => {
+                view.ui.move("zoom", "bottom-right");
+                // view.then(() => {
                     this.setState({
                         map,
                         view,
                         status: 'loaded'
                     });
-                });
-                let graphicsLayer = new GraphicsLayer();
-                map.layers.add(graphicsLayer);
+                // });
 
+                let graphicsLayer = new GraphicsLayer();
+                map.layers.add(graphicsLayer)
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+                //***********************************************************************************************
+                const renderer = {
+                    type: "heatmap",
+                    colorStops: [
+                        { color: "rgba(63, 40, 102, 0)", ratio: 0 },
+                        { color: "#c1f100", ratio: 0.083 },
+                        { color: "#c5dd00", ratio: 0.166 },
+                        { color: "#c9c900", ratio: 0.249 },
+                        { color: "#cdb400", ratio: 0.332 },
+                        { color: "#d19f00", ratio: 0.415 },
+                        { color: "#d58b00", ratio: 0.498 },
+                        { color: "#d97700", ratio: 0.581 },
+                        { color: "#dd6300", ratio: 0.664 },
+                        { color: "#e14f00", ratio: 0.747 },
+                        { color: "#e63b00", ratio: 0.830 },
+                        { color: "#ea2600", ratio: 0.913 },
+                        { color: "#ed1200", ratio: 1 }
+                    ],
+                    maxPixelIntensity: 25,
+                    minPixelIntensity: 0
+                };
+
+                const csvTemplate = {
+                    title: "{place}",
+                    content: "Magnitude {mag} {type} hit {place} on {time}."
+                };
+
+                const csvLayer = new CSVLayer({
+                    url: csvFile,
+                    popupTemplate: csvTemplate,
+                    renderer: renderer
+                });
+                // map.layers.add(csvLayer);
+                //*****************************************************************************************************
 
                 var graphicBuffer = new Collection();
 
-                this.showGraphics = () => {
-
-                    if (this.state.visiblePoints) {
+                this.showGraphics = (a=true) => {
+                    if (a) {
                         graphicsLayer.graphics.removeAll();
                     } else {
                         graphicsLayer.graphics.removeAll();
@@ -98,7 +136,6 @@ class Map extends Component {
                     graphicsLayer.graphics.removeAll();
                 };
                 reloadGraphics = (() => {
-                    console.log('reloading')
                     graphicsLayer.graphics.removeAll();
                     graphicBuffer.removeAll();
                     this.mapObjectStore.store.forEach(elem => {addGraphic(elem)});
@@ -108,7 +145,7 @@ class Map extends Component {
                     graphicsLayer.graphics.addMany(graphicBuffer);
                 }).bind(this);
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                view.popup.autoOpenEnabled = false;
+                // view.popup.autoOpenEnabled = false;
                 view.on("click", (function (event) {
                     // Get the mapInfo of the click on the view
                     var lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
@@ -269,6 +306,7 @@ class Map extends Component {
                 this.clearGraphics();
                 this.mapObjectStore.globalStore.forEach(elem => {addGraphic(elem)});
                 this.mapObjectStore.clearFilters();
+                this.showGraphics();
 
 
             })
@@ -276,19 +314,12 @@ class Map extends Component {
     }
 
 
-    renderMap() {
-        if (this.state.status === 'loading') {
-            return <LoadingTitle><span>loading</span></LoadingTitle>;
-        }
-    }
-
     render() {
-        this.showGraphics();
         return (
             <MapContainer>
                 <div style={{height: '100%', width: '100%'}}>
                     <MapDiv id='viewDiv'>
-                        {this.renderMap()}
+                        <LoadingTitle visible={status === 'loading'}><span>loading</span></LoadingTitle>;
                     </MapDiv>
                     <ControlPane>
                         <MapInfoView>
@@ -325,7 +356,7 @@ const MapInfoView = styled.div`
 `;
 
 const LoadingTitle = styled.div`
-    display: block;
+    display: ${props => props.visible?'block':'none'};
     height: 700px;
     width: 100%;
     

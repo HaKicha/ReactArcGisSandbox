@@ -12,7 +12,7 @@ import {reloadGraphics} from '../components/Map'
         super(props);
         this.state = {
             isPaneOpen: false,
-            isGraphicsVisible: false,
+            isGraphicsVisible: true,
             isModalOpen: false
         }
     }

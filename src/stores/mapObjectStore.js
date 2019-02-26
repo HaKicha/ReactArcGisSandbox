@@ -40,7 +40,7 @@ export default class mapObjectStore {
                 }
             )
         });
-    }
+    };
 
     test = (elem) => {
         if (!elem.actionType.includes(this.curExpression.eventType)) return false;
