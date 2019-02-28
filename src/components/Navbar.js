@@ -1,9 +1,8 @@
 import React, {Component} from 'react'
 import styled from 'styled-components'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faList,faFilter,faEye,faEyeSlash, faSlidersH} from "@fortawesome/free-solid-svg-icons";
+import {faList,faFilter,faEye,faEyeSlash, faSlidersH, faCompress} from "@fortawesome/free-solid-svg-icons";
 import {faEye as faEyeRegular,faEyeSlash as faEyeSlashRegular} from "@fortawesome/free-regular-svg-icons";
-
 
 class Navbar extends Component {
 
@@ -31,7 +30,7 @@ class Navbar extends Component {
             document.getElementById('leftPane').style.display = 'block';
         }
         else document.getElementById('leftPane').style.display = 'none';
-    }
+    };
 
 
     render() {
@@ -55,15 +54,15 @@ class Navbar extends Component {
                     </NavbarElem>
                 </NavbarLi>
 
-                <NavbarLi onClick={this.showMapPoints} className={'right'}>
+                <NavbarLi onClick={this.showHeatmap} className={'right'}>
                     <NavbarElem>
-                        <FontAwesomeIcon icon={(this.state.isPointsVisible)?faEyeRegular:faEyeSlashRegular}/>
+                        <FontAwesomeIcon icon={(this.state.isHeatmapVisible)?faEyeRegular:faEyeSlashRegular}/>
                     </NavbarElem>
                 </NavbarLi>
 
-                <NavbarLi onClick={this.showHeatmap} className={'right'}>
+                <NavbarLi onClick={this.showMapPoints} className={'right'}>
                     <NavbarElem>
-                        <FontAwesomeIcon icon={(this.state.isHeatmapVisible)?faEyeSlash:faEye}/>
+                        <FontAwesomeIcon icon={(this.state.isPointsVisible)?faEyeSlash:faEye}/>
                     </NavbarElem>
                 </NavbarLi>
 

@@ -1,11 +1,16 @@
 function geoJsonToEsriJson(GeoJSON) {
     let result = [];
-    let GeoInfoObj = JSON.parse(GeoJSON);
+    let GeoInfoObj = GeoJSON;
     switch (GeoInfoObj.type) {
         case 'Point': {
             GeoInfoObj.type = 'point';
-            GeoInfoObj.longitude = GeoInfoObj.coordinates[0];
-            GeoInfoObj.latitude = GeoInfoObj.coordinates[1];
+            if (GeoInfoObj.coordinates[1] < GeoInfoObj.coordinates[0]) {
+                GeoInfoObj.longitude = GeoInfoObj.coordinates[0];
+                GeoInfoObj.latitude = GeoInfoObj.coordinates[1];
+            } else {
+                GeoInfoObj.longitude = GeoInfoObj.coordinates[1];
+                GeoInfoObj.latitude = GeoInfoObj.coordinates[0];
+            }
             delete GeoInfoObj.coordinates;
             result.push(GeoInfoObj);
             return result;

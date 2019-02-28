@@ -9,8 +9,7 @@ import geoJsonToEsriJson from '../modules/GeoJsonParser';
 class LeftMenu extends Component {
 
     getPoint = (elem) => {
-        let geoData = geoJsonToEsriJson(elem)[0];
-
+        let geoData = elem;
         switch (geoData.type) {
             case 'point': {
                 return {
@@ -19,32 +18,23 @@ class LeftMenu extends Component {
                 }
             }
             case 'polyline': {
-                let lat=0 ,lon=0;
-                geoData.paths.forEach((a) => {
-                   lat += a[1];
-                   lon += a[0];
-                });
                 return {
-                    latitude: lat/geoData.paths.length,
-                    longitude: lon/geoData.paths.length
+                    latitude: geoData.paths[0][0],
+                    longitude: geoData.paths[0][1]
                 }
             }
             case 'polygon': {
-                let lat=0 ,lon=0;
-                geoData.rings.forEach((a) => {
-                    lat += a[1];
-                    lon += a[0];
-                });
                 return {
-                    latitude: lat/geoData.rings.length,
-                    longitude: lon/geoData.rings.length
+                    latitude: geoData.rings[0][0],
+                    longitude: geoData.rings[0][1]
                 }
             }
         }
-    }
+    };
 
     createPanels = () => {
         return this.props.store.store.map(elem => {
+            if(elem.timestamp === '') return'';
             let geoData = geoJsonToEsriJson(elem.geoData)[0];
             let point = this.getPoint(elem.geoData);
             let options = {

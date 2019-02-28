@@ -51,9 +51,6 @@ export default class LeftMenuObjectPane extends Component {
         return(
         <Container opened={this.state.opened}>
             <InfoBlock>
-                <a href={this.props.options.link}>
-                    <Image src={logo}/>
-                </a>
                 <ActionType><b>{this.props.options.actionType}</b></ActionType>
                 <Date >{this.props.options.timestamp}</Date>
                 <FontAwesomeIcon icon={faMapMarkerAlt}

@@ -5,8 +5,6 @@ import styled from 'styled-components'
 import {observable} from 'mobx'
 import {inject, observer} from "mobx-react";
 import geoJsonToEsriJson from '../modules/GeoJsonParser';
-import getSvgUrl from '../modules/SvgUrlStore';
-import csvFile from '../resources/2.5_week.csv'
 
 const options = {
     url: 'https://js.arcgis.com/4.10/'
@@ -14,7 +12,6 @@ const options = {
 let addGraphic = () => {};
 let goToPoint = () => {};
 let reloadGraphics = () => {};
-
 
 @inject('store')
 @observer
@@ -27,6 +24,7 @@ class Map extends Component {
 
         this.state = {
             status: 'loading',
+            clustersVisible: false
         }
 
     }
@@ -52,15 +50,14 @@ class Map extends Component {
             "esri/widgets/BasemapToggle",
             "esri/Graphic",
             "esri/core/Collection",
-            "esri/layers/GraphicsLayer",
-            "esri/layers/CSVLayer"], options)
-            .then(([Map, MapView, BasemapToggle, Graphic, Collection, GraphicsLayer,CSVLayer]) => {
+            "esri/layers/GraphicsLayer"], options)
+            .then(([Map, MapView, BasemapToggle, Graphic, Collection, GraphicsLayer]) => {
                 const map = new Map({basemap: "topo"});
                 const view = new MapView({
                     container: "viewDiv",
                     map,
                     zoom: this.mapInfo.zoom,
-                    center: [42.192, 35.357]
+                    center: [41.4366, 37.7203]
                 });
 
                 var toggle = new BasemapToggle({
@@ -79,63 +76,27 @@ class Map extends Component {
                 // });
 
                 let graphicsLayer = new GraphicsLayer();
+                let clusterLayer = new GraphicsLayer()
                 map.layers.add(graphicsLayer)
                 //    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
                 //***********************************************************************************************
-                const renderer = {
-                    type: "heatmap",
-                    colorStops: [
-                        { color: "rgba(63, 40, 102, 0)", ratio: 0 },
-                        { color: "#c1f100", ratio: 0.083 },
-                        { color: "#c5dd00", ratio: 0.166 },
-                        { color: "#c9c900", ratio: 0.249 },
-                        { color: "#cdb400", ratio: 0.332 },
-                        { color: "#d19f00", ratio: 0.415 },
-                        { color: "#d58b00", ratio: 0.498 },
-                        { color: "#d97700", ratio: 0.581 },
-                        { color: "#dd6300", ratio: 0.664 },
-                        { color: "#e14f00", ratio: 0.747 },
-                        { color: "#e63b00", ratio: 0.830 },
-                        { color: "#ea2600", ratio: 0.913 },
-                        { color: "#ed1200", ratio: 1 }
-                    ],
-                    maxPixelIntensity: 10,
-                    minPixelIntensity: 0
-                };
-
-                const csvTemplate = {
-                    title: "{place}",
-                    content: "Magnitude {mag} {type} hit {place} on {time}."
-                };
-
-                const csvLayer = new CSVLayer({
-                    url: csvFile,
-                    popupTemplate: csvTemplate,
-                    renderer: renderer,
-                    opacity: 0.7
-                });
-                // map.layers.add(csvLayer);
                 //*****************************************************************************************************
 
                 var graphicBuffer = new Collection();
 
                 this.showGraphics = (a=true) => {
                     if (a) {
-                        graphicsLayer.graphics.removeAll();
+                        map.layers.remove(graphicsLayer);
                     } else {
-                        graphicsLayer.graphics.removeAll();
-                        graphicBuffer.sort((a,b) => {
-                            return(a.geometry.type==='point')?1:-1;
-                        });
-                        graphicsLayer.graphics.addMany(graphicBuffer)
+                        map.layers.add(graphicsLayer);
                     }
                 };
 
                 this.toggleHeatMap = (a) => {
-                    if(a && !map.layers.includes(csvLayer)) map.layers.add(csvLayer);
-                    if(!a) map.layers.remove(csvLayer);
+                    if(a && !map.layers.includes(clusterLayer)) map.layers.add(clusterLayer);
+                    if(!a) map.layers.remove(clusterLayer);
                 };
                 this.clearGraphics = () => {
                     graphicsLayer.graphics.removeAll();
@@ -184,8 +145,10 @@ class Map extends Component {
                 // ?***************************************************************************************************
                 addGraphic = ((elem) => {
                     let obj, marker, attributes, objGraphic;
-                        obj = geoJsonToEsriJson(elem.geoData);
-                        obj.forEach( (place) => {
+                    obj = geoJsonToEsriJson(elem.geoData);
+
+
+                    obj.forEach( (place) => {
                             attributes = {
                                 id: elem.id,
                                 actionType: elem.actionType,
@@ -198,30 +161,40 @@ class Map extends Component {
                                     graphicBuffer.add(new Graphic({
                                         geometry: place,
                                         symbol:  {
-                                            type: "picture-marker",
-                                            url: getSvgUrl(elem.source),
-                                            width: 40,
-                                            height: 40
+                                            type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                                            style: "circle",
+                                            color: "#ea2600",
+                                            size: "8px",  // pixels
+                                            outline: {  // autocasts as new SimpleLineSymbol()
+                                                color: [ 0, 0, 0 ],
+                                                width: 1  // points
+                                            }
                                         },
                                         attributes: {
                                             ID: elem.id,
-                                            Event: elem.actionType,
+                                            Action: elem.actionType,
                                             Source: elem.source,
                                             Victims: elem.victims,
-                                            Time: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
+                                            Status: elem.status,
+                                            Name: elem.name,
+                                            Time: (elem.timestamp)?(new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',',''):''
                                         },
                                         popupTemplate: {
-                                            title: "Event",
+                                            title: "Action",
                                             content: [{
                                                 type: 'fields',
                                                 fieldInfos: [{
                                                     fieldName: "ID"
                                                 }, {
-                                                    fieldName: "Event"
+                                                    fieldName: "Action"
                                                 }, {
+                                                    fieldName: "Status"
+                                                },{
                                                     fieldName: "Source"
                                                 }, {
                                                     fieldName: "Victims"
+                                                }, {
+                                                    fieldName: "Name"
                                                 }, {
                                                     fieldName: "Time"
                                                 }]
@@ -244,44 +217,86 @@ class Map extends Component {
                                     break;
                                 }
                                 case 'polygon': {
-                                    marker = {
-                                        type: "simple-fill", // autocasts as new SimpleFillSymbol()
-                                        color: [50, 50, 50, 0.4],
-                                        outline: { // autocasts as new SimpleLineSymbol()
-                                            color: [0, 0, 0],
-                                            width: 1
-                                        }
-                                    };
-                                    objGraphic = new Graphic({
-                                        geometry: place,
-                                        symbol: marker,
-                                        attributes: {
-                                            ID: elem.id,
-                                            Event: elem.actionType,
-                                            Source: elem.source,
-                                            Victims: elem.victims,
-                                            Time: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
-                                    },
-                                        popupTemplate: {
-                                            title: "Event",
-                                            content: [{
-                                                type: 'fields',
-                                                fieldInfos: [{
-                                                    fieldName: "ID"
-                                                }, {
-                                                    fieldName: "Event type"
-                                                }, {
-                                                    fieldName: "Source"
-                                                }, {
-                                                    fieldName: "Victims"
-                                                }, {
-                                                    fieldName: "Time"
+
+                                    place.rings = place.rings.slice(0, place.rings.length - 1);
+
+                                    if (elem.weight) {
+                                        marker = {
+                                            type: "simple-fill",
+                                            color: [150, 50, 50, 0.4],
+                                            outline: {
+                                                color: [0, 0, 0],
+                                                width: 1
+                                            }
+                                        };
+                                        objGraphic = new Graphic({
+                                            geometry: place,
+                                            symbol: marker,
+                                            attributes: {
+                                                ID: elem.id,
+                                                Weight: elem.weight
+                                            },
+                                            popupTemplate: {
+                                                title: "Action",
+                                                content: [{
+                                                    type: 'fields',
+                                                    fieldInfos: [{
+                                                        fieldName: "ID"
+                                                    }, {
+                                                        fieldName: "Weight"
+                                                    }]
                                                 }]
-                                            }]
-                                        }
-                                    });
-                                    graphicBuffer.add(objGraphic);
-                                    break;
+                                            }
+                                        });
+                                        clusterLayer.graphics.add(objGraphic);
+                                        break;
+                                    }
+                                    else {
+                                        marker = {
+                                            type: "simple-fill",
+                                            color: [50, 50, 50, 0.4],
+                                            outline: {
+                                                color: [0, 0, 0],
+                                                width: 1
+                                            }
+                                        };
+                                        objGraphic = new Graphic({
+                                            geometry: place,
+                                            symbol: marker,
+                                            attributes: {
+                                                Action: elem.actionType,
+                                                Source: elem.source,
+                                                Victims: elem.victims,
+                                                Status: elem.status,
+                                                Name: elem.name,
+                                                Time: (elem.timestamp) ? (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',', '') : ''
+                                            },
+                                            popupTemplate: {
+                                                title: "Action",
+                                                content: [{
+                                                    type: 'fields',
+                                                    fieldInfos: [{
+                                                        fieldName: "ID"
+                                                    }, {
+                                                        fieldName: "Action"
+                                                    }, {
+                                                        fieldName: "Status"
+                                                    }, {
+                                                        fieldName: "Source"
+                                                    }, {
+                                                        fieldName: "Victims"
+                                                    }, {
+                                                        fieldName: "Name"
+                                                    }, {
+                                                        fieldName: "Time"
+                                                    }]
+                                                }]
+                                            }
+                                        });
+                                        graphicBuffer.add(objGraphic);
+                                        break;
+                                    }
+
                                 }
                             }
                         });
@@ -299,15 +314,15 @@ class Map extends Component {
                     });
                 }).bind(this);
 
+
                 //    *****************************************************************************************************
-                    if (this.props.store.getFromJson()) {
-                        this.clearGraphics();
-                        this.mapObjectStore.globalStore.forEach(elem => {
-                            addGraphic(elem)
-                        });
-                        this.mapObjectStore.clearFilters();
-                        this.showGraphics();
-                    }
+                   this.props.store.getFromJson();
+                   this.clearGraphics();
+                   this.mapObjectStore.globalStore.forEach(elem => addGraphic(elem));
+                   this.mapObjectStore.clearFilters();
+                   graphicsLayer.addMany(graphicBuffer);
+                   this.showGraphics();
+
             })
 
     }
@@ -318,7 +333,7 @@ class Map extends Component {
             <MapContainer>
                 <div style={{height: '100%', width: '100%'}}>
                     <MapDiv id='viewDiv'>
-                        <LoadingTitle visible={status === 'loading'}><span>loading</span></LoadingTitle>;
+                        <LoadingTitle visible={this.state.status === 'loading'}><span>loading</span></LoadingTitle>
                     </MapDiv>
                     <ControlPane>
                         <MapInfoView>
