@@ -23,7 +23,9 @@ export default class SettingsPane extends React.Component{
     constructor(props) {
         super(props)
         this.state = {
-            isSettingsOpen: this.props.isSettingsOpen
+            isSettingsOpen: this.props.isSettingsOpen,
+            value: 0,
+            currentValue: 0
         }
     }
 
@@ -36,6 +38,7 @@ export default class SettingsPane extends React.Component{
 
 
     applyPriority = () => {
+        this.setState({value: this.state.currentValue});
         this.props.closeSettings();
     }
 
@@ -59,7 +62,11 @@ export default class SettingsPane extends React.Component{
                     <br/>
                     <br/>
                     <Label>CIMIC</Label>
-                    <input id={'#priority'} type="range" defaultValue={1} max={2} min={0}/>
+                    <input id={'#priority'}
+                           type="range"
+                           defaultValue={this.state.value}
+                           max={2} min={0}
+                           onChange={(event) => {this.setState({currentValue: event.target.value})}}/>
                     <Label>Military</Label>
                     <Button onClick={this.applyPriority}>Apply</Button>
                 </Container>

@@ -59,8 +59,6 @@ export default class FiltersPane extends React.Component{
         sourceType: '',
         victims_min: '',
         victims_max: '',
-        injured_min: '',
-        injured_max: '',
         startDate: '',
         endDate: ''
     };
@@ -71,8 +69,6 @@ export default class FiltersPane extends React.Component{
             sourceType: '',
             victims_min: '',
             victims_max: '',
-            injured_min: '',
-            injured_max: '',
             startDate: '',
             endDate: ''
         };
@@ -114,13 +110,6 @@ export default class FiltersPane extends React.Component{
                         <NumberInput id={'victims_min'} type={'number'} placeholder={'min'} min={'0'}
                                      onChange={(event) => {this.searchExpression.victims_min = event.target.value}}/>
 
-                    </div>
-                    <div>
-                        <Label htmlFor="injured_min">Injured:</Label>
-                        <NumberInput id={'injured_max'} type={'number'} placeholder={'max'} min={'0'}
-                                     onChange={(event) => {this.searchExpression.injured_max = event.target.value}}/>
-                        <NumberInput id={'injured_min'} type={'number'} placeholder={'min'} min={'0'}
-                                     onChange={(event) => {this.searchExpression.injured_min = event.target.value}}/>
                     </div>
                     <div>
                         <Label htmlFor="datepicker">Date:</Label>

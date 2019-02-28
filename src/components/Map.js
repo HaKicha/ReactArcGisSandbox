@@ -191,7 +191,6 @@ class Map extends Component {
                                 actionType: elem.actionType,
                                 source: elem.source,
                                 victims: elem.victims,
-                                injured: elem.injured,
                                 timestamp: elem.timestamp
                             };
                             switch (place.type) {
@@ -209,7 +208,6 @@ class Map extends Component {
                                             Event: elem.actionType,
                                             Source: elem.source,
                                             Victims: elem.victims,
-                                            Injured: elem.injured,
                                             Time: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
                                         },
                                         popupTemplate: {
@@ -224,8 +222,6 @@ class Map extends Component {
                                                     fieldName: "Source"
                                                 }, {
                                                     fieldName: "Victims"
-                                                }, {
-                                                    fieldName: "Injured"
                                                 }, {
                                                     fieldName: "Time"
                                                 }]
@@ -264,7 +260,6 @@ class Map extends Component {
                                             Event: elem.actionType,
                                             Source: elem.source,
                                             Victims: elem.victims,
-                                            Injured: elem.injured,
                                             Time: (new Date(Date.parse(elem.timestamp)).toLocaleString() + '').replace(',','')
                                     },
                                         popupTemplate: {
@@ -279,8 +274,6 @@ class Map extends Component {
                                                     fieldName: "Source"
                                                 }, {
                                                     fieldName: "Victims"
-                                                }, {
-                                                    fieldName: "Injured"
                                                 }, {
                                                     fieldName: "Time"
                                                 }]
@@ -299,21 +292,22 @@ class Map extends Component {
                 goToPoint = ((lat, lon) => {
                     view.goTo({
                         center: [lon, lat],
-                        zoom: 15
+                        zoom: 13
                     },{
                         duration: 3000,
-                        easing: 'ease-in-out'
+                        easing: 'ease-out'
                     });
                 }).bind(this);
 
                 //    *****************************************************************************************************
-                this.props.store.getFromJson();
-                this.clearGraphics();
-                this.mapObjectStore.globalStore.forEach(elem => {addGraphic(elem)});
-                this.mapObjectStore.clearFilters();
-                this.showGraphics();
-
-
+                    if (this.props.store.getFromJson()) {
+                        this.clearGraphics();
+                        this.mapObjectStore.globalStore.forEach(elem => {
+                            addGraphic(elem)
+                        });
+                        this.mapObjectStore.clearFilters();
+                        this.showGraphics();
+                    }
             })
 
     }

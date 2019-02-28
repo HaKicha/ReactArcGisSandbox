@@ -66,7 +66,6 @@ export default class LeftMenuObjectPane extends Component {
                                      cursor: 'pointer'}} size={'lg'}
                                     onClick={this.clickHandler}/>
                 <Info opened={this.state.opened}>Victims: {this.props.options.victims}</Info>
-                <Info opened={this.state.opened}>Injured: {this.props.options.injured}</Info>
             </InfoBlock>
             <FontAwesomeIcon icon={(this.state.opened?faAngleUp:faAngleDown)} onClick={this.togglePane} size={'lg'}
             style={{margin: '3px 5px 0 0', color:'#333',cursor:'pointer'}}/>
